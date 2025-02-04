@@ -1,14 +1,15 @@
 FROM nginx:1.23-alpine
 
-RUN apk update && apk add --no-cache git
+# Install git and clone repository
+RUN apk update && apk add --no-cache git && \
+    git clone https://github.com/mairl-lab/jade.git /usr/share/nginx/html
 
-# Clone repo and copy ALL static assets
-RUN git clone https://github.com/mairl-lab/jade.git /tmp/jade && \
-    cp -r /tmp/jade/* /usr/share/nginx/html/
-
-# Remove default config and use custom configuration
+# Replace default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Verify copied files (for debugging)
+RUN ls -la /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
